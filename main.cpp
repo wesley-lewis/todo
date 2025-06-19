@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <iostream>
 #include <cstdlib>
+#include "command.cpp"
 
 /*
  * Objectives:
@@ -87,34 +88,83 @@ int printSelect(void* arg, int argc, char** argv, char** colNames)
 	return 0;
 }
 
+void printUsage()
+{
+	std::cout << "Usage: \n";
+	std::cout << "Create task: todo -c \"task1\"\n";
+	std::cout << "List tasks(will list all the tasks) : todo -l\n";
+	std::cout << "Delete task: todo -d <task-id>\n";
+}
+
+Command parseArgs(const std::string &cmd, const std::string &data)
+{
+	CommandType cmd_type;
+	if (cmd == "-l") {
+		cmd_type = CommandType::List;
+	}else if (cmd == "-d") {
+		cmd_type = CommandType::Delete;
+	}else if (cmd == "-c") {
+		cmd_type = CommandType::Create;
+	}else {
+		std::cerr << "ERROR: Invalid command\n";
+		std::exit(1);
+	}
+	Command command(cmd_type, data);
+	return command;
+}
+
 int main(int argc, char **argv)
 {
+	sqlite3 *db;
 	const std::string default_folder = "~/.local/share/todo/";
 	const std::string folder = expand_home(default_folder);
 	if(create_dir(folder)) {
 		std::cerr << "ERROR: Unable to create directory\n";
 		return 1;
 	}
-
-	sqlite3 *db;
 	const char* filename = "file1.sqlite";
 	std::string filepath = folder + filename;
-	
+
 	int rc = createConnection(filepath, &db);
 	if (rc) return rc;
-	std::cout << "INFO: connected to sqlite: rc" << rc << "\n";
+	std::cout << "INFO: connected to sqlite" << "\n";
 
-	rc = createTasksTable(db);
-	if (rc) return rc;
+	Client client(db, filepath);
 
-	std::cout << "Created a SQLITE table\n";
+	if (argc == 2) {
+		const std::string cmd(argv[1]);
+		const std::string data = "";
+		Command command = parseArgs(cmd, data);
+		command.printCommand();
+	}else if (argc == 3) {
+		const std::string cmd(argv[1]);
+		const std::string data(argv[2]);
+		Command command = parseArgs(cmd, data);
+		command.printCommand();
+	}else {
+		printUsage();
+		return 0;
+	}
 
+	return 0;
+
+	// TODO: 
+	// Work on args provided by user
+	// Insert, Delete, Modify task
+	
+	
+	//
+	// rc = createTasksTable(db);
+	// if (rc) return rc;
+	//
+	// std::cout << "Created a SQLITE table\n";
+	//
 	// const char *insert_sql = "INSERT INTO tasks (task, completed) VALUES('Task1', 0);";
 	// rc = execSql(db, insert_sql, nullptr);
-	
-	const char* select_sql = "SELECT * from tasks;";
-	rc = execSql(db, select_sql, printSelect);
-
-	sqlite3_close(db);
+	//	
+	// const char* select_sql = "SELECT * from tasks;";
+	// rc = execSql(db, select_sql, printSelect);
+	//
+	// sqlite3_close(db);
 	return 0;
 }

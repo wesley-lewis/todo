@@ -67,9 +67,9 @@ int execSql(sqlite3 *db, const char* sql, int (*callback)(void *, int, char **, 
 	return 0;
 }
 
-int createConnection(const std::string &filepath, sqlite3 *db)
+int createConnection(const std::string &filepath, sqlite3 **db)
 {
-	int rc = sqlite3_open(filepath.c_str(), &db);
+	int rc = sqlite3_open(filepath.c_str(), db);
 	if (rc) {
 		std::cerr << "ERROR: Unable to open database: " << '\n';
 		return 1;
@@ -100,16 +100,17 @@ int main(int argc, char **argv)
 	const char* filename = "file1.sqlite";
 	std::string filepath = folder + filename;
 	
-	int rc = createConnection(filepath, db);
+	int rc = createConnection(filepath, &db);
 	if (rc) return rc;
+	std::cout << "INFO: connected to sqlite: rc" << rc << "\n";
 
 	rc = createTasksTable(db);
 	if (rc) return rc;
 
 	std::cout << "Created a SQLITE table\n";
 
-	const char *insert_sql = "INSERT INTO tasks (task, completed) VALUES('Task1', 0);";
-	rc = execSql(db, insert_sql, nullptr);
+	// const char *insert_sql = "INSERT INTO tasks (task, completed) VALUES('Task1', 0);";
+	// rc = execSql(db, insert_sql, nullptr);
 	
 	const char* select_sql = "SELECT * from tasks;";
 	rc = execSql(db, select_sql, printSelect);

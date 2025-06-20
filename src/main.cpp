@@ -2,7 +2,8 @@
 #include <filesystem>
 #include <iostream>
 #include <cstdlib>
-#include "command.cpp"
+#include "../include/command.h"
+#include "../include/client.h"
 
 /*
  * Objectives:

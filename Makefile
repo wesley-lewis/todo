@@ -7,7 +7,7 @@ SRCS = $(wildcard $(SRCDIR)/*.cpp)
 # OBJS = $(SRCS:.cpp=.o)
 OBJS = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SRCS))
 
-TARGET=bin
+TARGET=todo
 OBJDIR=build
 
 LIBS=-lfmt -lsqlite3

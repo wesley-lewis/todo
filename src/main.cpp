@@ -15,6 +15,9 @@
  * FUTURE:
  * - Remove all tasks that contain a particular keyword
 */
+
+/// convert '~' to the user directory of the current user
+/// converts ~/.local/share/todo -> /home/user/.local/share/todo
 const std::string expand_home(const std::string& path) 
 {
 	if (path[0] == '~') {
@@ -108,6 +111,8 @@ Command parseArgs(const std::string &cmd, const std::string &data)
 		cmd_type = CommandType::Insert;
 	}else if (cmd == "-c") {
 		cmd_type = CommandType::Complete;
+	}else if (cmd == "-lc") {
+		cmd_type = CommandType::ListCompleted;
 	}else {
 		std::cerr << "ERROR: Invalid command\n";
 		std::exit(1);
@@ -119,6 +124,7 @@ Command parseArgs(const std::string &cmd, const std::string &data)
 int main(int argc, char **argv)
 {
 	sqlite3 *db;
+	// the folder where the sqlite file will be stored
 	const std::string default_folder = "~/.local/share/todo/";
 	const std::string folder = expand_home(default_folder);
 	if(create_dir(folder)) {
@@ -127,6 +133,7 @@ int main(int argc, char **argv)
 	}
 	// the file where the db is stored
 	const char* filename = "file1.sqlite";
+	// the filepath where the .sqlite file will be stored.
 	std::string filepath = folder + filename;
 
 	// create the connection with sqlite
@@ -150,29 +157,10 @@ int main(int argc, char **argv)
 		// The data to be inserted or the key to be deleted
 		const std::string data(argv[2]);
 		Command command = parseArgs(cmd, data);
-		client.runCommand(command);
+		client.runCommand(command); // run the command
 	}else {
 		printUsage();
 	}
 
-	return 0;
-
-	// TODO: 
-	// Work on args provided by user
-	// Insert, Delete, Modify, Complete task
-	
-	
-	// rc = createTasksTable(db);
-	// if (rc) return rc;
-	//
-	// std::cout << "Created a SQLITE table\n";
-	//
-	// const char *insert_sql = "INSERT INTO tasks (task, completed) VALUES('Task1', 0);";
-	// rc = execSql(db, insert_sql, nullptr);
-	//	
-	// const char* select_sql = "SELECT * from tasks;";
-	// rc = execSql(db, select_sql, printSelect);
-	//
-	// sqlite3_close(db);
 	return 0;
 }

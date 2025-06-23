@@ -61,14 +61,22 @@ int Client::runCommand(Command command)
 			}
 		case CommandType::Complete:
 			{
-				// TODO: 
-				// Create the SQL query
-				// Modify the value with id=<data>
 				const std::string& sql = fmt::format("UPDATE tasks SET completed=1 WHERE id={}", command.getData());
 				char *errMsg = nullptr;
 				int rc = sqlite3_exec(db, sql.c_str(), nullptr, 0, &errMsg);
 				if (rc) {
 					handleError(errMsg, "complete");
+					return 1;
+				}
+				break;
+			}
+		case CommandType::ListCompleted:
+			{
+				const std::string& sql = fmt::format("SELECT * from tasks where completed=1;");
+				char *errMsg = nullptr;
+				int rc = sqlite3_exec(db, sql.c_str(), nullptr, 0, &errMsg);
+				if (rc) {
+					handleError(errMsg, "listcompleted");
 					return 1;
 				}
 				break;

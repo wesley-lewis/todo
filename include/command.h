@@ -10,6 +10,7 @@ enum CommandType {
 	List,
 	Complete,
 	Delete,
+	ListCompleted,
 };
 
 class Command {

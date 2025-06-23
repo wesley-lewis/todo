@@ -6,15 +6,19 @@ CommandType Command::getCommandType() {
 }
 
 void Command::printCommand() {
+	std::cout << "CommandType: ";
 	switch (command_type) {
-		case CommandType::Create:
-			std::cout << "CommandType: Create, Data: " << data << '\n';
+		case CommandType::Insert:
+			std::cout << "Create, Data: " << data << '\n';
 			break;
 		case CommandType::Delete:
-			std::cout << "CommandType: Delete, Data: " << data << '\n';
+			std::cout << "Delete, Data: " << data << '\n';
 			break;
 		case CommandType::List:
-			std::cout << "CommandType: List\n";
+			std::cout << "List\n";
+			break;
+		case CommandType::Complete:
+			std::cout << "Complete, Data: " << data << '\n';
 			break;
 	}
 }

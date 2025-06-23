@@ -27,6 +27,7 @@ int Client::runCommand(Command command)
 	switch (command.getCommandType()) {
 		case CommandType::List:
 			{
+				std::cout << "Working on getting the list\n";
 				const std::string sql = "SELECT * from tasks;";
 				char *errMsg = nullptr;
 				int rc = sqlite3_exec(db, sql.c_str(), listCallback, 0, &errMsg);
@@ -36,9 +37,9 @@ int Client::runCommand(Command command)
 				}
 				break;
 			}
-		case CommandType::Create:
+		case CommandType::Insert:
 			{
-				const std::string sql = fmt::format("INSERT INTO tasks (task, completed) VALUES({}, {}) ", command.getData(), 0);
+				const std::string sql = fmt::format("INSERT INTO tasks (task, completed) VALUES('{}', {}) ", command.getData(), 0);
 				char *errMsg = nullptr;
 				int rc = sqlite3_exec(db, sql.c_str(), nullptr, 0, &errMsg);
 				if (rc) {
@@ -48,14 +49,30 @@ int Client::runCommand(Command command)
 				break;
 			}
 		case CommandType::Delete:
-			const std::string sql = fmt::format("INSERT INTO tasks (task, completed) VALUES({}, {}) ", command.getData(), 0);
-			char *errMsg = nullptr;
-			int rc = sqlite3_exec(db, sql.c_str(), nullptr, 0, &errMsg);
-			if (rc) {
-				handleError(errMsg, "delete");
-				return 1;
+			{
+				const std::string sql = fmt::format("DELETE FROM tasks WHERE id={};", command.getData() );
+				char *errMsg = nullptr;
+				int rc = sqlite3_exec(db, sql.c_str(), nullptr, 0, &errMsg);
+				if (rc) {
+					handleError(errMsg, "delete");
+					return 1;
+				}
+				break;
 			}
-			break;
+		case CommandType::Complete:
+			{
+				// TODO: 
+				// Create the SQL query
+				// Modify the value with id=<data>
+				const std::string& sql = fmt::format("UPDATE tasks SET completed=1 WHERE id={}", command.getData());
+				char *errMsg = nullptr;
+				int rc = sqlite3_exec(db, sql.c_str(), nullptr, 0, &errMsg);
+				if (rc) {
+					handleError(errMsg, "complete");
+					return 1;
+				}
+				break;
+			}
 	}
 	return 0;
 }

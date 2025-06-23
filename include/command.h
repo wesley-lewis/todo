@@ -6,8 +6,9 @@
 #include <string>
 
 enum CommandType {
-	Create,
+	Insert,
 	List,
+	Complete,
 	Delete,
 };
 

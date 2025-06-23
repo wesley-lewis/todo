@@ -104,8 +104,10 @@ Command parseArgs(const std::string &cmd, const std::string &data)
 		cmd_type = CommandType::List;
 	}else if (cmd == "-d") {
 		cmd_type = CommandType::Delete;
+	}else if (cmd == "-i") {
+		cmd_type = CommandType::Insert;
 	}else if (cmd == "-c") {
-		cmd_type = CommandType::Create;
+		cmd_type = CommandType::Complete;
 	}else {
 		std::cerr << "ERROR: Invalid command\n";
 		std::exit(1);
@@ -123,38 +125,43 @@ int main(int argc, char **argv)
 		std::cerr << "ERROR: Unable to create directory\n";
 		return 1;
 	}
+	// the file where the db is stored
 	const char* filename = "file1.sqlite";
 	std::string filepath = folder + filename;
 
+	// create the connection with sqlite
 	int rc = createConnection(filepath, &db);
 	if (rc) return rc;
-	std::cout << "INFO: connected to sqlite" << "\n";
+  // std::cout << "IN_FO: connected to sqlite" << "\n";
 
+	// My abstraction of sqlite3 client
 	Client client(db, filepath);
 
+	// No. Arguments should either be 2 or 3
 	if (argc == 2) {
+		// First argument should be -l
 		const std::string cmd(argv[1]);
 		const std::string data = "";
 		Command command = parseArgs(cmd, data);
-		command.printCommand();
+		client.runCommand(command);
 	}else if (argc == 3) {
+		// First arugment should be either -c or -d
 		const std::string cmd(argv[1]);
+		// The data to be inserted or the key to be deleted
 		const std::string data(argv[2]);
 		Command command = parseArgs(cmd, data);
-		command.printCommand();
+		client.runCommand(command);
 	}else {
 		printUsage();
-		return 0;
 	}
 
 	return 0;
 
 	// TODO: 
 	// Work on args provided by user
-	// Insert, Delete, Modify task
+	// Insert, Delete, Modify, Complete task
 	
 	
-	//
 	// rc = createTasksTable(db);
 	// if (rc) return rc;
 	//
